@@ -27,7 +27,7 @@ public interface AnimalDao {
     int countItems();
 
     @Query("SELECT * FROM animal WHERE animalID = :id")
-    Animal findById(int id);
+    LiveData<Animal> findById(int id);
 
     @Query("DELETE FROM animal")
     void deleteAll();

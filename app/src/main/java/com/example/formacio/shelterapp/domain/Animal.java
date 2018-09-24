@@ -1,7 +1,7 @@
 package com.example.formacio.shelterapp.domain;
 
-import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.PrimaryKey;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -17,10 +17,21 @@ public class Animal implements Parcelable {
     private int age;
     private boolean chip;
     private String typeOfAnimal;
-    private int date;
+    private long date;
     private String picture;
 
-    public Animal(String name, int age, boolean chip, String typeOfAnimal, int date, String picture) {
+    @Ignore
+    public Animal(String name, int age, boolean chip, String typeOfAnimal, long date, String picture) throws IllegalArgumentException {
+        this.name = name;
+        this.age = age;
+        this.chip = chip;
+        this.typeOfAnimal = typeOfAnimal;
+        this.date = date;
+        this.picture = picture;
+    }
+
+    public Animal(int animalID, String name, int age, boolean chip, String typeOfAnimal, long date, String picture) throws IllegalArgumentException {
+        this.animalID = animalID;
         this.name = name;
         this.age = age;
         this.chip = chip;
@@ -69,11 +80,11 @@ public class Animal implements Parcelable {
         this.typeOfAnimal = typeOfAnimal;
     }
 
-    public int getDate() {
+    public long getDate() {
         return date;
     }
 
-    public void setDate(int date) {
+    public void setDate(long date) {
         this.date = date;
     }
 
@@ -98,7 +109,7 @@ public class Animal implements Parcelable {
         dest.writeInt(this.age);
         dest.writeByte(this.chip ? (byte) 1 : (byte) 0);
         dest.writeString(this.typeOfAnimal);
-        dest.writeInt(this.date);
+        dest.writeLong(this.date);
         dest.writeString(this.picture);
     }
 
@@ -108,7 +119,7 @@ public class Animal implements Parcelable {
         this.age = in.readInt();
         this.chip = in.readByte() != 0;
         this.typeOfAnimal = in.readString();
-        this.date = in.readInt();
+        this.date = in.readLong();
         this.picture = in.readString();
     }
 
