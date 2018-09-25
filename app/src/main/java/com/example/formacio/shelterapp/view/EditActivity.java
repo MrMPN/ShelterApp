@@ -1,7 +1,6 @@
 package com.example.formacio.shelterapp.view;
 
 import android.annotation.SuppressLint;
-import android.app.ActionBar;
 import android.app.DatePickerDialog;
 import android.app.DatePickerDialog.OnDateSetListener;
 import android.arch.lifecycle.ViewModelProviders;
@@ -35,6 +34,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 public class EditActivity extends AppCompatActivity {
     private final String TAG = EditActivity.class.getSimpleName();
@@ -103,7 +103,7 @@ public class EditActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                addData();
+                onFabClicked();
             }
         });
     }
@@ -160,24 +160,28 @@ public class EditActivity extends AppCompatActivity {
         return new Animal(mName, mAge, mChip, mTypeAnimal, time, base64Pic);
     }
 
-    private void addData(){
+    private void onFabClicked(){
         if (isInputValid()){
-            switch (ACTIVITY_MODE){
-                case ADD_MODE:
-                    Log.i(TAG, "AddMode");
-                    mEditViewModel.insert(getInputData());
-                    break;
-                case EDIT_MODE:
-                    Log.i(TAG, "EditMode");
-                    Animal animal = getInputData();
-                    animal.setAnimalID(animalId);
-                    mEditViewModel.update(animal);
-                    break;
-            }
+            addData();
             Intent intent = new Intent(this, MainActivity.class);
             startActivity(intent);
         } else{
             Toast.makeText(this, R.string.input_error, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void addData(){
+        switch (ACTIVITY_MODE){
+            case ADD_MODE:
+                Log.i(TAG, "AddMode");
+                mEditViewModel.insert(getInputData());
+                break;
+            case EDIT_MODE:
+                Log.i(TAG, "EditMode");
+                Animal animal = getInputData();
+                animal.setAnimalID(animalId);
+                mEditViewModel.update(animal);
+                break;
         }
     }
 
@@ -190,7 +194,7 @@ public class EditActivity extends AppCompatActivity {
 
     public void setAndSaveImageTo64(Intent data){
         if (data.hasExtra("data")){
-            Bitmap bitmap = (Bitmap) data.getExtras().get("data");
+            Bitmap bitmap = (Bitmap) Objects.requireNonNull(data.getExtras()).get("data");
             if (bitmap != null) {
                 base64Pic = ImageUtils.encodeTobase64(bitmap);
                 picture.setImageBitmap(bitmap);

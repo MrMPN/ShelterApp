@@ -14,7 +14,6 @@ import java.util.List;
 public class DetailViewModel extends AndroidViewModel {
     private static final String TAG = DetailViewModel.class.getSimpleName();
     private Repository repository;
-    private LiveData<List<Animal>> currentList;
 
     public DetailViewModel(@NonNull Application application) {
         super(application);

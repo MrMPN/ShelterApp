@@ -14,13 +14,11 @@ import java.util.List;
 public class EditViewModel extends AndroidViewModel {
     private static final String TAG = EditViewModel.class.getSimpleName();
     private Repository repository;
-    private LiveData<List<Animal>> currentList;
 
     public EditViewModel(@NonNull Application application) {
         super(application);
         repository = new Repository(application);
         Log.d(TAG, "Retrieving data from repository");
-        currentList = repository.getAllAnimals();
     }
 
     public void insert(Animal animal){

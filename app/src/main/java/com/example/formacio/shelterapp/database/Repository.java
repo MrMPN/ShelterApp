@@ -43,7 +43,6 @@ public class Repository {
                 animalDao.update(animal);
             }
         });
-
     }
 
     public void delete (final Animal animal){
@@ -62,10 +61,6 @@ public class Repository {
                 animalDao.deleteAll();
             }
         });
-    }
-
-    public int countItems (){
-        return animalDao.countItems();
     }
 }
 

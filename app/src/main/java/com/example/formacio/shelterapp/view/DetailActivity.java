@@ -32,7 +32,6 @@ public class DetailActivity extends AppCompatActivity implements DeleteDialogLis
     private TextView detailType;
     private TextView detailDate;
     private CheckBox detailCheck;
-    private Button detailButton;
     private ImageView detailPicture;
     private Animal animal;
     private DetailViewModel mDetailViewModel;
@@ -54,7 +53,7 @@ public class DetailActivity extends AppCompatActivity implements DeleteDialogLis
         detailType = findViewById(R.id.detailType);
         detailDate = findViewById(R.id.detailDate);
         detailCheck = findViewById(R.id.detailCheck);
-        detailButton = findViewById(R.id.detailButton);
+        Button detailButton = findViewById(R.id.detailButton);
         detailPicture = findViewById(R.id.detailPicture);
 
         detailButton.setOnClickListener(new OnClickListener() {

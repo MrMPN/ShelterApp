@@ -11,7 +11,6 @@ import android.support.annotation.NonNull;
 public class Animal implements Parcelable {
 
     @PrimaryKey(autoGenerate = true)
-    @NonNull
     private int animalID;
     private String name;
     private int age;
@@ -97,6 +96,8 @@ public class Animal implements Parcelable {
     }
 
 
+    //Aquests mètodes s'han generat automàticament amb un plugin (Android Parcelable code generator)
+    //per tal de poder crear un Parcelable facilment
     @Override
     public int describeContents() {
         return 0;

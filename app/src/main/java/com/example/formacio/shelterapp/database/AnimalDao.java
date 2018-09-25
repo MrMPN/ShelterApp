@@ -23,9 +23,6 @@ public interface AnimalDao {
     @Update
     void update(Animal animal);
 
-    @Query("SELECT COUNT(*) FROM animal")
-    int countItems();
-
     @Query("SELECT * FROM animal WHERE animalID = :id")
     LiveData<Animal> findById(int id);
 

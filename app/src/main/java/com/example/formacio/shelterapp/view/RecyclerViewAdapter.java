@@ -1,5 +1,6 @@
 package com.example.formacio.shelterapp.view;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
@@ -54,7 +55,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         cleanHolder(holder);
         holder.nameTextView.setText(animal.getName());
         long date = animal.getDate();
-        DateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+        @SuppressLint("SimpleDateFormat") DateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
         holder.dateTextView.setText(sdf.format(new Date(date)));
 
         if (animal.isChip()){
