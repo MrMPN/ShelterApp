@@ -12,4 +12,5 @@
     <string name="delete_question">Are you sure you want to delete it?</string>
     <string name="yes">Yes</string>
     <string name="cancel">Cancel</string>
+    <string name="type_of_animal">Type of animal</string>
 </resources>

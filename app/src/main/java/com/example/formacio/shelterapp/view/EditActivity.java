@@ -1,6 +1,7 @@
 package com.example.formacio.shelterapp.view;
 
 import android.annotation.SuppressLint;
+import android.app.ActionBar;
 import android.app.DatePickerDialog;
 import android.app.DatePickerDialog.OnDateSetListener;
 import android.arch.lifecycle.ViewModelProviders;
@@ -12,6 +13,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.CheckBox;
@@ -69,6 +71,7 @@ public class EditActivity extends AppCompatActivity {
     private void changeToEditMode(Intent intent){
         ACTIVITY_MODE = EDIT_MODE;
         setTitle("Edit");
+
         Animal animal = intent.getParcelableExtra(ANIMAL_DATA);
         populateUi(animal);
     }
@@ -211,5 +214,18 @@ public class EditActivity extends AppCompatActivity {
                     break;
                 }
         }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            // Respond to the action bar's Up/Home button
+            case android.R.id.home:
+                if (ACTIVITY_MODE == EDIT_MODE) {
+                    onBackPressed();
+                    return true;
+                }
+        }
+        return super.onOptionsItemSelected(item);
     }
 }
