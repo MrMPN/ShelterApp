@@ -1,6 +1,5 @@
 package com.example.formacio.shelterapp.view;
 
-import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
 import android.app.DatePickerDialog.OnDateSetListener;
 import android.arch.lifecycle.ViewModelProviders;
@@ -24,15 +23,13 @@ import android.widget.Toast;
 
 import com.example.formacio.shelterapp.R;
 import com.example.formacio.shelterapp.domain.Animal;
+import com.example.formacio.shelterapp.utils.DateUtils;
 import com.example.formacio.shelterapp.utils.ImageUtils;
 import com.example.formacio.shelterapp.viewmodel.EditViewModel;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -70,8 +67,7 @@ public class EditActivity extends AppCompatActivity {
 
     private void changeToEditMode(Intent intent){
         ACTIVITY_MODE = EDIT_MODE;
-        setTitle("Edit");
-
+        setTitle(R.string.edit);
         Animal animal = intent.getParcelableExtra(ANIMAL_DATA);
         populateUi(animal);
     }
@@ -113,23 +109,10 @@ public class EditActivity extends AppCompatActivity {
         return new DatePickerDialog(this, new OnDateSetListener() {
             @Override
             public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-                setTime(year, month, dayOfMonth);
+                date.setText(DateUtils.getFormattedTime(year, month, dayOfMonth));
+                time = DateUtils.dateToUnixTime(year, month, dayOfMonth);
             }
         }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH));
-    }
-
-    private void setTime(int year, int month, int dayOfMonth){
-        Calendar c = Calendar.getInstance();
-        c.set(year, month, dayOfMonth);
-        @SuppressLint("SimpleDateFormat") DateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-        date.setText(sdf.format(c.getTime()));
-        time = c.getTimeInMillis();
-    }
-
-    private void setTime(long time){
-        @SuppressLint("SimpleDateFormat") DateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-        date.setText(sdf.format(new Date(time)));
-        this.time = time;
     }
 
     private void populateUi(Animal animal) {
@@ -139,7 +122,8 @@ public class EditActivity extends AppCompatActivity {
         typeAnimal.setText(animal.getTypeOfAnimal());
         animalId = animal.getAnimalID();
         setAndSaveImageToBitmap(animal.getPicture());
-        setTime(animal.getDate());
+        time = animal.getDate();
+        date.setText(DateUtils.getFormattedTime(time));
     }
 
 
@@ -157,6 +141,9 @@ public class EditActivity extends AppCompatActivity {
         int mAge = Integer.parseInt(age.getText().toString());
         String mTypeAnimal = typeAnimal.getText().toString();
         boolean mChip = chip.isChecked();
+        if (animalId != 0) {
+            return new Animal(animalId, mName, mAge, mChip, mTypeAnimal, time, base64Pic);
+        }
         return new Animal(mName, mAge, mChip, mTypeAnimal, time, base64Pic);
     }
 
@@ -178,9 +165,7 @@ public class EditActivity extends AppCompatActivity {
                 break;
             case EDIT_MODE:
                 Log.i(TAG, "EditMode");
-                Animal animal = getInputData();
-                animal.setAnimalID(animalId);
-                mEditViewModel.update(animal);
+                mEditViewModel.update(getInputData());
                 break;
         }
     }
@@ -223,7 +208,6 @@ public class EditActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            // Respond to the action bar's Up/Home button
             case android.R.id.home:
                 if (ACTIVITY_MODE == EDIT_MODE) {
                     onBackPressed();

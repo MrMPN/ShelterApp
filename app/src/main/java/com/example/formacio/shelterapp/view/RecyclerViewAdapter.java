@@ -1,6 +1,5 @@
 package com.example.formacio.shelterapp.view;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
@@ -17,11 +16,11 @@ import android.widget.TextView;
 
 import com.example.formacio.shelterapp.R;
 import com.example.formacio.shelterapp.domain.Animal;
+import com.example.formacio.shelterapp.utils.DateUtils;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
+
+import static com.example.formacio.shelterapp.view.DetailActivity.*;
 
 public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder> {
 
@@ -49,14 +48,12 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        Log.i(TAG, "OnBinViewHolder method called");
+        Log.i(TAG, "OnBindViewHolder method called");
         final Animal animal = mAnimals.get(position);
 
         cleanHolder(holder);
         holder.nameTextView.setText(animal.getName());
-        long date = animal.getDate();
-        @SuppressLint("SimpleDateFormat") DateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-        holder.dateTextView.setText(sdf.format(new Date(date)));
+        holder.dateTextView.setText(DateUtils.getFormattedTime(animal.getDate()));
 
         if (animal.isChip()){
             holder.nameTextView.setTextColor(Color.parseColor("#000099"));
@@ -67,7 +64,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(mContext, DetailActivity.class);
-                intent.putExtra("selectedAnimal", animal);
+                intent.putExtra(SELECTED_ANIMAL, animal);
                 mContext.startActivity(intent);
             }
         });

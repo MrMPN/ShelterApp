@@ -13,4 +13,5 @@
     <string name="yes">Yes</string>
     <string name="cancel">Cancel</string>
     <string name="type_of_animal">Type of animal</string>
+    <string name="age_details">%1$d years</string>
 </resources>
