@@ -1,5 +1,6 @@
 package com.example.formacio.shelterapp.view;
 
+import android.app.Dialog;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
@@ -13,15 +14,19 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
 import com.example.formacio.shelterapp.R;
 import com.example.formacio.shelterapp.domain.Animal;
 import com.example.formacio.shelterapp.viewmodel.MainViewModel;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
 
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     private final String TAG = MainActivity.class.getSimpleName();
+    private final int ERROR_DIALOG_REQUEST = 9001;
     private MainViewModel mMainViewModel;
     RecyclerView recyclerView;
     RecyclerViewAdapter adapter;
@@ -33,6 +38,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         initViews();
         initViewModel();
+        isServiceOk();
     }
 
     private void initViews(){
@@ -59,6 +65,22 @@ public class MainActivity extends AppCompatActivity {
                 adapter.setWords(animals);
             }
         });
+    }
+
+    public boolean isServiceOk(){
+        Log.d(TAG, "isServiceOk: Checking Google services");
+        int available = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(this);
+        if (available == ConnectionResult.SUCCESS) {
+            Log.d(TAG, "isServiceOk: Everything's fine");
+            return true;
+        } else if (GoogleApiAvailability.getInstance().isUserResolvableError(available)) {
+            Log.d(TAG, "isServiceOk: Service error, but we can fix it");
+            Dialog dialog = GoogleApiAvailability.getInstance().getErrorDialog(this, available, ERROR_DIALOG_REQUEST );
+            dialog.show();
+        } else{
+            Toast.makeText(this, "Can't make Map requests", Toast.LENGTH_SHORT).show();
+        }
+        return false;
     }
 
     @Override

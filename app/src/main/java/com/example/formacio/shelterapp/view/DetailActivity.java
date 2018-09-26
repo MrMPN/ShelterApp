@@ -4,6 +4,7 @@ import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -23,6 +24,7 @@ import com.example.formacio.shelterapp.viewmodel.DetailViewModel;
 import static com.example.formacio.shelterapp.view.EditActivity.ANIMAL_DATA;
 
 public class DetailActivity extends AppCompatActivity implements DeleteDialogListener {
+    private static final String TAG = "DetailActivity";
     public static final String SELECTED_ANIMAL = "selectedAnimal";
     private TextView detailName;
     private TextView detailAge;
@@ -96,11 +98,13 @@ public class DetailActivity extends AppCompatActivity implements DeleteDialogLis
 
     @Override
     public void onPositiveResult() {
+        Log.d(TAG, "onPositiveResult: Deleting item");
         mDetailViewModel.delete(animal);
         finish();
     }
 
     @Override
     public void onNegativeResult() {
+        Log.d(TAG, "onNegativeResult: Cancelled delete");
     }
 }
