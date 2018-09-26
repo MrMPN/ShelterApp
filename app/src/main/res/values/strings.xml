@@ -5,7 +5,7 @@
     <string name="name">Name</string>
     <string name="age">Age</string>
     <string name="animal">Animal</string>
-    <string name="has_chip">Has chip?</string>
+    <string name="has_chip">Does it have chip?</string>
     <string name="register_date">Register Date</string>
     <string name="delete">DELETE</string>
     <string name="edit">Edit</string>
