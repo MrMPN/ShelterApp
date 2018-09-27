@@ -4,9 +4,13 @@ import android.app.Dialog;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -26,11 +30,14 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     private final String TAG = MainActivity.class.getSimpleName();
-    private final int ERROR_DIALOG_REQUEST = 9001;
+    public static final int ERROR_DIALOG_REQUEST = 9001;
+    public static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 9002;
+    public static final int PERMISSIONS_REQUEST_ENABLE_GPS = 9003;
     private MainViewModel mMainViewModel;
     RecyclerView recyclerView;
     RecyclerViewAdapter adapter;
     FloatingActionButton fab;
+    private boolean locationPermissionGranted = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,7 +45,9 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         initViews();
         initViewModel();
-        isServiceOk();
+        if (isServiceOk()) {
+            getLocationPermission();
+        }
     }
 
     private void initViews(){
@@ -81,6 +90,34 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this, "Can't make Map requests", Toast.LENGTH_SHORT).show();
         }
         return false;
+    }
+
+    private void getLocationPermission() {
+        if (ContextCompat.checkSelfPermission(this.getApplicationContext(),
+                android.Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED) {
+            Log.d(TAG, "getLocationPermission: Permission was already granted");
+            locationPermissionGranted = true;
+        } else {
+            Log.d(TAG, "getLocationPermission: Asking for permission");
+            ActivityCompat.requestPermissions(this,
+                    new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
+                    PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        locationPermissionGranted = false;
+        switch (requestCode) {
+            case PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION: {
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Log.d(TAG, "onRequestPermissionsResult: Permissions granted");
+                    locationPermissionGranted = true;
+                }
+            }
+        }
     }
 
     @Override

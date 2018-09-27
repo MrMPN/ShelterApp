@@ -20,10 +20,14 @@ import com.example.formacio.shelterapp.utils.DateUtils;
 import com.example.formacio.shelterapp.utils.ImageUtils;
 import com.example.formacio.shelterapp.view.DeleteDialogFragment.DeleteDialogListener;
 import com.example.formacio.shelterapp.viewmodel.DetailViewModel;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
 
 import static com.example.formacio.shelterapp.view.EditActivity.ANIMAL_DATA;
 
-public class DetailActivity extends AppCompatActivity implements DeleteDialogListener {
+public class DetailActivity extends AppCompatActivity implements DeleteDialogListener, OnMapReadyCallback {
     private static final String TAG = "DetailActivity";
     public static final String SELECTED_ANIMAL = "selectedAnimal";
     private TextView detailName;
@@ -34,6 +38,7 @@ public class DetailActivity extends AppCompatActivity implements DeleteDialogLis
     private ImageView detailPicture;
     private Animal animal;
     private DetailViewModel mDetailViewModel;
+    private GoogleMap mGoogleMap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +49,7 @@ public class DetailActivity extends AppCompatActivity implements DeleteDialogLis
         Intent intent = getIntent();
         if (intent != null && intent.hasExtra(SELECTED_ANIMAL)) {
             populateUI(intent);
+            initMap();
         }
     }
 
@@ -61,6 +67,11 @@ public class DetailActivity extends AppCompatActivity implements DeleteDialogLis
                 showDialog();
             }
         });
+    }
+
+    public void initMap() {
+        SupportMapFragment map = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
+        map.getMapAsync(this);
     }
 
     private void showDialog() {
@@ -106,5 +117,18 @@ public class DetailActivity extends AppCompatActivity implements DeleteDialogLis
     @Override
     public void onNegativeResult() {
         Log.d(TAG, "onNegativeResult: Cancelled delete");
+    }
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        try {
+            if (googleMap != null) {
+                mGoogleMap = googleMap;
+                mGoogleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log.e("ERROR", "GOOGLE MAPS NOT LOADED");
+        }
     }
 }
