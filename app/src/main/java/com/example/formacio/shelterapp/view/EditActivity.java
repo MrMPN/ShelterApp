@@ -79,7 +79,6 @@ public class EditActivity extends AppCompatActivity implements GoogleApiClient.C
     private EditText typeAnimal;
     private TextView latitude;
     private TextView longitude;
-    private Button buttonLocation;
     private String base64Pic;
     private int animalId;
     private long time = 0;
@@ -87,8 +86,7 @@ public class EditActivity extends AppCompatActivity implements GoogleApiClient.C
     private EditViewModel mEditViewModel;
     protected GoogleApiClient mGoogleApiClient;
     protected LocationRequest locationRequest;
-    private FusedLocationProviderClient fusedLocationProviderClient;
-    private boolean connectionToApi = false;
+    //private boolean connectionToApi = false;
 
 
     @Override
@@ -120,7 +118,7 @@ public class EditActivity extends AppCompatActivity implements GoogleApiClient.C
         typeAnimal = findViewById(R.id.typeEdit);
         latitude = findViewById(R.id.latitude);
         longitude = findViewById(R.id.longitude);
-        buttonLocation = findViewById(R.id.button);
+        Button buttonLocation = findViewById(R.id.button);
         FloatingActionButton fab = findViewById(R.id.addData);
         validationList.addAll(Arrays.asList(name, age, typeAnimal));
 
@@ -252,7 +250,7 @@ public class EditActivity extends AppCompatActivity implements GoogleApiClient.C
     }
 
     private void getLocation() {
-        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
+        FusedLocationProviderClient fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
@@ -308,7 +306,7 @@ public class EditActivity extends AppCompatActivity implements GoogleApiClient.C
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
-        connectionToApi = true;
+        //connectionToApi = true;
     }
 
     @Override
