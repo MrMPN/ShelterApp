@@ -259,7 +259,8 @@ public class EditActivity extends AppCompatActivity implements GoogleApiClient.C
             @Override
             public void onComplete(@NonNull Task<Location> task) {
                 if (task.isSuccessful()) {
-                    setCoordinates(task.getResult());
+                    location = task.getResult();
+                    setCoordinates(location);
                 }
             }
         });
