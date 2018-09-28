@@ -14,4 +14,6 @@
     <string name="cancel">Cancel</string>
     <string name="type_of_animal">Type of animal</string>
     <string name="age_details">%1$d years</string>
+    <string name="lat_detail">Lat: %1$f</string>
+    <string name="lng_detail">Long: %1$f</string>
 </resources>

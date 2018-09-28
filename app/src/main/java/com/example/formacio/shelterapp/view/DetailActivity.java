@@ -20,10 +20,13 @@ import com.example.formacio.shelterapp.utils.DateUtils;
 import com.example.formacio.shelterapp.utils.ImageUtils;
 import com.example.formacio.shelterapp.view.DeleteDialogFragment.DeleteDialogListener;
 import com.example.formacio.shelterapp.viewmodel.DetailViewModel;
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 import static com.example.formacio.shelterapp.view.EditActivity.ANIMAL_DATA;
 
@@ -36,9 +39,12 @@ public class DetailActivity extends AppCompatActivity implements DeleteDialogLis
     private TextView detailDate;
     private CheckBox detailCheck;
     private ImageView detailPicture;
+    private TextView latText;
+    private TextView lngText;
     private Animal animal;
     private DetailViewModel mDetailViewModel;
-    private GoogleMap mGoogleMap;
+    GoogleMap mGoogleMap;
+    private static final float ZOOM = 13;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,6 +67,8 @@ public class DetailActivity extends AppCompatActivity implements DeleteDialogLis
         detailCheck = findViewById(R.id.detailCheck);
         Button detailButton = findViewById(R.id.detailButton);
         detailPicture = findViewById(R.id.detailPicture);
+        latText = findViewById(R.id.latitudeText);
+        lngText = findViewById(R.id.longitudeText);
         detailButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -80,13 +88,24 @@ public class DetailActivity extends AppCompatActivity implements DeleteDialogLis
     }
 
     private void populateUI(Intent intent){
-        animal = intent.getExtras().getParcelable("selectedAnimal");
+        animal = intent.getExtras().getParcelable(SELECTED_ANIMAL);
         detailName.setText(animal.getName());
         detailAge.setText(getString(R.string.age_details, animal.getAge()));
         detailType.setText(animal.getTypeOfAnimal());
         detailDate.setText(DateUtils.getFormattedTime(animal.getDate()));
         detailCheck.setChecked(animal.isChip());
         detailPicture.setImageBitmap(ImageUtils.decodeBase64(animal.getPicture()));
+        latText.setText(getString(R.string.lat_detail, animal.getLatitude()));
+        lngText.setText(getString(R.string.lng_detail, animal.getLongitude()));
+    }
+
+    private void goToLocation(double lat, double lng){
+        LatLng latLng = new LatLng(lat, lng);
+        CameraUpdate update = CameraUpdateFactory.newLatLngZoom(latLng, ZOOM);
+        mGoogleMap.moveCamera(update);
+        MarkerOptions options = new MarkerOptions()
+                .position(latLng);
+        mGoogleMap.addMarker(options);
     }
 
     @Override
@@ -125,6 +144,7 @@ public class DetailActivity extends AppCompatActivity implements DeleteDialogLis
             if (googleMap != null) {
                 mGoogleMap = googleMap;
                 mGoogleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+                goToLocation(animal.getLatitude(), animal.getLongitude());
             }
         } catch (Exception e) {
             e.printStackTrace();

@@ -4,21 +4,17 @@ import android.Manifest;
 import android.app.DatePickerDialog;
 import android.app.DatePickerDialog.OnDateSetListener;
 import android.arch.lifecycle.ViewModelProviders;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.location.Location;
-import android.location.LocationManager;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
@@ -41,7 +37,6 @@ import com.example.formacio.shelterapp.viewmodel.EditViewModel;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.ResolvableApiException;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationRequest;
@@ -59,8 +54,6 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Objects;
-
-import static com.example.formacio.shelterapp.view.MainActivity.PERMISSIONS_REQUEST_ENABLE_GPS;
 
 public class EditActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener {
@@ -82,11 +75,9 @@ public class EditActivity extends AppCompatActivity implements GoogleApiClient.C
     private String base64Pic;
     private int animalId;
     private long time = 0;
+    private Location location;
     private List<EditText> validationList = new ArrayList<>();
     private EditViewModel mEditViewModel;
-    protected GoogleApiClient mGoogleApiClient;
-    protected LocationRequest locationRequest;
-    //private boolean connectionToApi = false;
 
 
     @Override
@@ -106,6 +97,7 @@ public class EditActivity extends AppCompatActivity implements GoogleApiClient.C
         ACTIVITY_MODE = EDIT_MODE;
         setTitle(R.string.edit);
         Animal animal = intent.getParcelableExtra(ANIMAL_DATA);
+        storeData(animal);
         populateUi(animal);
     }
 
@@ -152,7 +144,7 @@ public class EditActivity extends AppCompatActivity implements GoogleApiClient.C
     }
 
     private void initGoogleApi() {
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
+        GoogleApiClient mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addApi(LocationServices.API)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
@@ -171,17 +163,27 @@ public class EditActivity extends AppCompatActivity implements GoogleApiClient.C
         }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH));
     }
 
+    private void storeData(Animal animal){
+        animalId = animal.getAnimalID();
+        base64Pic = animal.getPicture();
+        time = animal.getDate();
+        location = animal.getLocation();
+    }
+
     private void populateUi(Animal animal) {
         name.setText(animal.getName());
         age.setText(String.valueOf(animal.getAge()));
         chip.setChecked(animal.isChip());
         typeAnimal.setText(animal.getTypeOfAnimal());
-        animalId = animal.getAnimalID();
-        setAndSaveImageToBitmap(animal.getPicture());
-        time = animal.getDate();
         date.setText(DateUtils.getFormattedTime(time));
+        setCoordinates(location);
+        setAndSaveImageToBitmap(base64Pic);
     }
 
+    private void setCoordinates(Location location){
+        latitude.setText(String.valueOf(location.getLatitude()));
+        longitude.setText(String.valueOf(location.getLongitude()));
+    }
 
     private boolean isInputValid() {
         for (EditText e : validationList) {
@@ -189,7 +191,7 @@ public class EditActivity extends AppCompatActivity implements GoogleApiClient.C
                 return false;
             }
         }
-        return !TextUtils.isEmpty(base64Pic) && (time != 0);
+        return !TextUtils.isEmpty(base64Pic) && (time != 0) && (location != null);
     }
 
     private Animal getInputData() {
@@ -198,9 +200,9 @@ public class EditActivity extends AppCompatActivity implements GoogleApiClient.C
         String mTypeAnimal = typeAnimal.getText().toString();
         boolean mChip = chip.isChecked();
         if (animalId != 0) {
-            return new Animal(animalId, mName, mAge, mChip, mTypeAnimal, time, base64Pic);
+            return new Animal(animalId, mName, mAge, mChip, mTypeAnimal, time, base64Pic, location);
         }
-        return new Animal(mName, mAge, mChip, mTypeAnimal, time, base64Pic);
+        return new Animal(mName, mAge, mChip, mTypeAnimal, time, base64Pic, location);
     }
 
     private void onFabClicked() {
@@ -216,11 +218,11 @@ public class EditActivity extends AppCompatActivity implements GoogleApiClient.C
     private void addData() {
         switch (ACTIVITY_MODE) {
             case ADD_MODE:
-                Log.i(TAG, "AddMode");
+                Log.d(TAG, "addData: AddMode");
                 mEditViewModel.insert(getInputData());
                 break;
             case EDIT_MODE:
-                Log.i(TAG, "EditMode");
+                Log.d(TAG, "addData: EditMode");
                 mEditViewModel.update(getInputData());
                 break;
         }
@@ -244,29 +246,38 @@ public class EditActivity extends AppCompatActivity implements GoogleApiClient.C
     }
 
     private void setAndSaveImageToBitmap(String base64) {
-        base64Pic = base64;
-        Bitmap bitmap = ImageUtils.decodeBase64(base64Pic);
+        Bitmap bitmap = ImageUtils.decodeBase64(base64);
         picture.setImageBitmap(bitmap);
     }
 
     private void getLocation() {
-        FusedLocationProviderClient fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
+        FusedLocationProviderClient fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
         fusedLocationProviderClient.getLastLocation().addOnCompleteListener(new OnCompleteListener<Location>() {
             @Override
             public void onComplete(@NonNull Task<Location> task) {
                 if (task.isSuccessful()) {
-                    Location location = task.getResult();
-                    latitude.setText(String.valueOf(location.getLatitude()));
-                    longitude.setText(String.valueOf(location.getLongitude()));
+                    setCoordinates(task.getResult());
                 }
             }
         });
     }
 
-    private void ifCorrect(Task<LocationSettingsResponse> task){
+
+    private void checkLocationSettings(){
+        LocationRequest locationRequest = LocationRequest.create();
+        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
+                .addLocationRequest(locationRequest);
+        Task<LocationSettingsResponse> result =
+                LocationServices.getSettingsClient(this).checkLocationSettings(builder.build());
+        setSuccessListener(result);
+        setFailureListener(result);
+    }
+
+    private void setSuccessListener(Task<LocationSettingsResponse> task){
         task.addOnSuccessListener(new OnSuccessListener<LocationSettingsResponse>() {
             @Override
             public void onSuccess(LocationSettingsResponse locationSettingsResponse) {
@@ -275,33 +286,20 @@ public class EditActivity extends AppCompatActivity implements GoogleApiClient.C
         });
     }
 
-    private void ifFixable(Task<LocationSettingsResponse> task){
+    private void setFailureListener(Task<LocationSettingsResponse> task) {
         task.addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
                 int statusCode = ((ApiException) e).getStatusCode();
-                switch (statusCode){
-                    case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
-                        try {
-                            ResolvableApiException resolvable = (ResolvableApiException) e;
-                            resolvable.startResolutionForResult(EditActivity.this, REQUEST_CHECK_SETTINGS);
-                        } catch (IntentSender.SendIntentException e1) {
-                        }
+                if (statusCode == LocationSettingsStatusCodes.RESOLUTION_REQUIRED) {
+                    try {
+                        ResolvableApiException resolvable = (ResolvableApiException) e;
+                        resolvable.startResolutionForResult(EditActivity.this, REQUEST_CHECK_SETTINGS);
+                    } catch (IntentSender.SendIntentException e1) {
+                    }
                 }
             }
         });
-    }
-
-
-    private void checkLocationSettings(){
-        locationRequest = LocationRequest.create();
-        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
-                .addLocationRequest(locationRequest);
-        Task<LocationSettingsResponse> result =
-                LocationServices.getSettingsClient(this).checkLocationSettings(builder.build());
-        ifCorrect(result);
-        ifFixable(result);
     }
 
     @Override

@@ -86,16 +86,13 @@ public class MainActivity extends AppCompatActivity {
             Log.d(TAG, "isServiceOk: Service error, but we can fix it");
             Dialog dialog = GoogleApiAvailability.getInstance().getErrorDialog(this, available, ERROR_DIALOG_REQUEST );
             dialog.show();
-        } else{
-            Toast.makeText(this, "Can't make Map requests", Toast.LENGTH_SHORT).show();
         }
         return false;
     }
 
     private void getLocationPermission() {
         if (ContextCompat.checkSelfPermission(this.getApplicationContext(),
-                android.Manifest.permission.ACCESS_FINE_LOCATION)
-                == PackageManager.PERMISSION_GRANTED) {
+                android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             Log.d(TAG, "getLocationPermission: Permission was already granted");
             locationPermissionGranted = true;
         } else {
@@ -111,8 +108,7 @@ public class MainActivity extends AppCompatActivity {
         locationPermissionGranted = false;
         switch (requestCode) {
             case PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION: {
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     Log.d(TAG, "onRequestPermissionsResult: Permissions granted");
                     locationPermissionGranted = true;
                 }

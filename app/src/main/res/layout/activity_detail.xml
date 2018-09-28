@@ -159,7 +159,7 @@
         tools:context=".MapsActivity" />
 
     <TextView
-        android:id="@+id/LatitudeText"
+        android:id="@+id/latitudeText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
@@ -169,13 +169,13 @@
         tools:text="Lat: 41.356985" />
 
     <TextView
-        android:id="@+id/LongitudeText"
+        android:id="@+id/longitudeText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        app:layout_constraintEnd_toEndOf="@+id/LatitudeText"
-        app:layout_constraintStart_toStartOf="@+id/LatitudeText"
-        app:layout_constraintTop_toBottomOf="@+id/LatitudeText"
+        app:layout_constraintEnd_toEndOf="@+id/latitudeText"
+        app:layout_constraintStart_toStartOf="@+id/latitudeText"
+        app:layout_constraintTop_toBottomOf="@+id/latitudeText"
         tools:text="Long: 2.352846" />
 
 </android.support.constraint.ConstraintLayout>

@@ -3,9 +3,9 @@ package com.example.formacio.shelterapp.domain;
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.PrimaryKey;
+import android.location.Location;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.support.annotation.NonNull;
 
 @Entity(tableName = "animal")
 public class Animal implements Parcelable {
@@ -18,18 +18,25 @@ public class Animal implements Parcelable {
     private String typeOfAnimal;
     private long date;
     private String picture;
+    private double latitude;
+    private double longitude;
 
     @Ignore
-    public Animal(String name, int age, boolean chip, String typeOfAnimal, long date, String picture) throws IllegalArgumentException {
+    public Animal(String name, int age, boolean chip, String typeOfAnimal, long date,
+                  String picture, Location location) throws IllegalArgumentException {
         this.name = name;
         this.age = age;
         this.chip = chip;
         this.typeOfAnimal = typeOfAnimal;
         this.date = date;
         this.picture = picture;
+        this.latitude = location.getLatitude();
+        this.longitude = location.getLongitude();
     }
 
-    public Animal(int animalID, String name, int age, boolean chip, String typeOfAnimal, long date, String picture) throws IllegalArgumentException {
+    @Ignore
+    public Animal(int animalID, String name, int age, boolean chip, String typeOfAnimal, long date,
+                  String picture, Location location) throws IllegalArgumentException {
         this.animalID = animalID;
         this.name = name;
         this.age = age;
@@ -37,6 +44,21 @@ public class Animal implements Parcelable {
         this.typeOfAnimal = typeOfAnimal;
         this.date = date;
         this.picture = picture;
+        this.latitude = location.getLatitude();
+        this.longitude = location.getLongitude();
+    }
+
+    public Animal(int animalID, String name, int age, boolean chip, String typeOfAnimal, long date,
+                  String picture, double latitude, double longitude) throws IllegalArgumentException {
+        this.animalID = animalID;
+        this.name = name;
+        this.age = age;
+        this.chip = chip;
+        this.typeOfAnimal = typeOfAnimal;
+        this.date = date;
+        this.picture = picture;
+        this.latitude = latitude;
+        this.longitude = longitude;
     }
 
     public int getAnimalID() {
@@ -95,9 +117,31 @@ public class Animal implements Parcelable {
         this.picture = picture;
     }
 
+    public Location getLocation() {
+        Location location = new Location("");
+        location.setLatitude(latitude);
+        location.setLongitude(longitude);
+        return location;
+    }
 
+    public double getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(double latitude) {
+        this.latitude = latitude;
+    }
+
+    public double getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(double longitude) {
+        this.longitude = longitude;
+    }
     //Aquests mètodes s'han generat automàticament amb un plugin (Android Parcelable code generator)
     //per tal de poder crear un Parcelable facilment
+
     @Override
     public int describeContents() {
         return 0;
@@ -112,6 +156,8 @@ public class Animal implements Parcelable {
         dest.writeString(this.typeOfAnimal);
         dest.writeLong(this.date);
         dest.writeString(this.picture);
+        dest.writeDouble(this.latitude);
+        dest.writeDouble(this.longitude);
     }
 
     protected Animal(Parcel in) {
@@ -122,9 +168,11 @@ public class Animal implements Parcelable {
         this.typeOfAnimal = in.readString();
         this.date = in.readLong();
         this.picture = in.readString();
+        this.latitude = in.readDouble();
+        this.longitude = in.readDouble();
     }
 
-    public static final Parcelable.Creator<Animal> CREATOR = new Parcelable.Creator<Animal>() {
+    public static final Creator<Animal> CREATOR = new Creator<Animal>() {
         @Override
         public Animal createFromParcel(Parcel source) {
             return new Animal(source);
