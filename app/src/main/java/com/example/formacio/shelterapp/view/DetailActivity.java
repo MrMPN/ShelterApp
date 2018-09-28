@@ -147,8 +147,7 @@ public class DetailActivity extends AppCompatActivity implements DeleteDialogLis
                 goToLocation(animal.getLatitude(), animal.getLongitude());
             }
         } catch (Exception e) {
-            e.printStackTrace();
-            Log.e("ERROR", "GOOGLE MAPS NOT LOADED");
+            Log.e(TAG, "onMapReady: MAP NOT LOADED ");
         }
     }
 }

@@ -1,12 +1,11 @@
 package com.example.formacio.shelterapp.view;
 
-import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
 import android.app.DatePickerDialog.OnDateSetListener;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.content.IntentSender;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.location.Location;
 import android.os.Bundle;
@@ -14,7 +13,6 @@ import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
@@ -53,17 +51,20 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
-import java.util.Objects;
+
+import static com.example.formacio.shelterapp.view.MainActivity.locationPermissionGranted;
 
 public class EditActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener {
-    private final String TAG = EditActivity.class.getSimpleName();
+    private static final String TAG = "EditActivity";
     private final static int REQUEST_CHECK_SETTINGS = 100;
     private static final int REQUEST_IMAGE_CAPTURE = 101;
     public static final String ANIMAL_DATA = "animalData";
     private final int ADD_MODE = 1;
     private final int EDIT_MODE = 2;
     private int ACTIVITY_MODE = ADD_MODE;
+    private boolean connectionToApi = false;
+    private List<EditText> validationList = new ArrayList<>();
     private ImageView picture;
     private EditText name;
     private EditText age;
@@ -76,7 +77,6 @@ public class EditActivity extends AppCompatActivity implements GoogleApiClient.C
     private int animalId;
     private long time = 0;
     private Location location;
-    private List<EditText> validationList = new ArrayList<>();
     private EditViewModel mEditViewModel;
 
 
@@ -86,21 +86,10 @@ public class EditActivity extends AppCompatActivity implements GoogleApiClient.C
         setContentView(R.layout.activity_edit);
         initViews();
         mEditViewModel = ViewModelProviders.of(this).get(EditViewModel.class);
+        if (locationPermissionGranted) { initGoogleApi(); }
         Intent intent = getIntent();
-        initGoogleApi();
-        if (intent != null && intent.hasExtra(ANIMAL_DATA)) {
-            changeToEditMode(intent);
-        }
+        if (intent != null && intent.hasExtra(ANIMAL_DATA)) { changeToEditMode(intent); }
     }
-
-    private void changeToEditMode(Intent intent) {
-        ACTIVITY_MODE = EDIT_MODE;
-        setTitle(R.string.edit);
-        Animal animal = intent.getParcelableExtra(ANIMAL_DATA);
-        storeData(animal);
-        populateUi(animal);
-    }
-
     private void initViews() {
         picture = findViewById(R.id.picture);
         name = findViewById(R.id.nameEdit);
@@ -131,7 +120,7 @@ public class EditActivity extends AppCompatActivity implements GoogleApiClient.C
         buttonLocation.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                checkLocationSettings();
+                if (connectionToApi) {checkLocationSettings();}
             }
         });
 
@@ -161,6 +150,14 @@ public class EditActivity extends AppCompatActivity implements GoogleApiClient.C
                 time = DateUtils.dateToUnixTime(year, month, dayOfMonth);
             }
         }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH));
+    }
+
+    private void changeToEditMode(Intent intent) {
+        ACTIVITY_MODE = EDIT_MODE;
+        setTitle(R.string.edit);
+        Animal animal = intent.getParcelableExtra(ANIMAL_DATA);
+        storeData(animal);
+        populateUi(animal);
     }
 
     private void storeData(Animal animal){
@@ -237,7 +234,7 @@ public class EditActivity extends AppCompatActivity implements GoogleApiClient.C
 
     public void setAndSaveImageTo64(Intent data) {
         if (data.hasExtra("data")) {
-            Bitmap bitmap = (Bitmap) Objects.requireNonNull(data.getExtras()).get("data");
+            Bitmap bitmap = (Bitmap) data.getExtras().get("data");
             if (bitmap != null) {
                 base64Pic = ImageUtils.encodeTobase64(bitmap);
                 picture.setImageBitmap(bitmap);
@@ -249,23 +246,6 @@ public class EditActivity extends AppCompatActivity implements GoogleApiClient.C
         Bitmap bitmap = ImageUtils.decodeBase64(base64);
         picture.setImageBitmap(bitmap);
     }
-
-    private void getLocation() {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            return;
-        }
-        FusedLocationProviderClient fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
-        fusedLocationProviderClient.getLastLocation().addOnCompleteListener(new OnCompleteListener<Location>() {
-            @Override
-            public void onComplete(@NonNull Task<Location> task) {
-                if (task.isSuccessful()) {
-                    location = task.getResult();
-                    setCoordinates(location);
-                }
-            }
-        });
-    }
-
 
     private void checkLocationSettings(){
         LocationRequest locationRequest = LocationRequest.create();
@@ -296,8 +276,21 @@ public class EditActivity extends AppCompatActivity implements GoogleApiClient.C
                     try {
                         ResolvableApiException resolvable = (ResolvableApiException) e;
                         resolvable.startResolutionForResult(EditActivity.this, REQUEST_CHECK_SETTINGS);
-                    } catch (IntentSender.SendIntentException e1) {
-                    }
+                    } catch (IntentSender.SendIntentException ignored) { }
+                }
+            }
+        });
+    }
+
+    @SuppressLint("MissingPermission")
+    private void getLocation() {
+        FusedLocationProviderClient fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
+        fusedLocationProviderClient.getLastLocation().addOnCompleteListener(new OnCompleteListener<Location>() {
+            @Override
+            public void onComplete(@NonNull Task<Location> task) {
+                if (task.isSuccessful()) {
+                    location = task.getResult();
+                    setCoordinates(location);
                 }
             }
         });
@@ -305,15 +298,17 @@ public class EditActivity extends AppCompatActivity implements GoogleApiClient.C
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
-        //connectionToApi = true;
+        connectionToApi = true;
     }
 
     @Override
     public void onConnectionSuspended(int i) {
+        Log.d(TAG, "onConnectionSuspended: ");
     }
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+        Log.e(TAG, "onConnectionFailed: " + connectionResult.toString());
     }
 
     @Override

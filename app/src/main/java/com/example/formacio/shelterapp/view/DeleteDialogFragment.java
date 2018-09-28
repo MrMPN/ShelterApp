@@ -12,7 +12,7 @@ import android.support.v7.app.AlertDialog;
 import com.example.formacio.shelterapp.R;
 
 public class DeleteDialogFragment extends DialogFragment {
-    private final String TAG = DeleteDialogFragment.class.getSimpleName();
+    private static final String TAG = "DeleteDialogFragment";
     private DeleteDialogListener callback;
 
     public interface DeleteDialogListener{

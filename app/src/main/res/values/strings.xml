@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">ShelterApp</string>
     <string name="delete_all">Delete all</string>
-    <string name="input_error">You haven\'t filled all fields</string>
+    <string name="input_error">Please fill all fields</string>
     <string name="name">Name</string>
     <string name="age">Age</string>
     <string name="animal">Animal</string>

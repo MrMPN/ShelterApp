@@ -5,6 +5,7 @@ import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -18,7 +19,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Toast;
 
 import com.example.formacio.shelterapp.R;
 import com.example.formacio.shelterapp.domain.Animal;
@@ -32,12 +32,11 @@ public class MainActivity extends AppCompatActivity {
     private final String TAG = MainActivity.class.getSimpleName();
     public static final int ERROR_DIALOG_REQUEST = 9001;
     public static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 9002;
-    public static final int PERMISSIONS_REQUEST_ENABLE_GPS = 9003;
+    public static boolean locationPermissionGranted = false;
     private MainViewModel mMainViewModel;
     RecyclerView recyclerView;
     RecyclerViewAdapter adapter;
     FloatingActionButton fab;
-    private boolean locationPermissionGranted = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
         initViews();
         initViewModel();
         if (isServiceOk()) {
-            getLocationPermission();
+            if (Build.VERSION.SDK_INT >= 23){getLocationPermission();}
         }
     }
 

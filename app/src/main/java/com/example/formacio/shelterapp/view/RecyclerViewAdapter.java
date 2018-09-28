@@ -24,7 +24,7 @@ import static com.example.formacio.shelterapp.view.DetailActivity.*;
 
 public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder> {
 
-    private static final String TAG = RecyclerViewAdapter.class.getSimpleName();
+    private static final String TAG = "RecyclerViewAdapter";
     private List<Animal> mAnimals;
     private LayoutInflater inflater;
     private Context mContext;
@@ -52,14 +52,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         final Animal animal = mAnimals.get(position);
 
         cleanHolder(holder);
-        holder.nameTextView.setText(animal.getName());
-        holder.dateTextView.setText(DateUtils.getFormattedTime(animal.getDate()));
-
-        if (animal.isChip()){
-            holder.nameTextView.setTextColor(Color.parseColor("#000099"));
-            holder.nameTextView.setTypeface(Typeface.DEFAULT_BOLD);
-        }
-
+        setViews(holder, animal);
         holder.parentLayout.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -73,6 +66,15 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     private void cleanHolder(ViewHolder holder){
         holder.nameTextView.setTypeface(Typeface.DEFAULT);
         holder.nameTextView.setTextColor(Color.DKGRAY);
+    }
+
+    private void setViews(ViewHolder holder, Animal animal){
+        holder.nameTextView.setText(animal.getName());
+        holder.dateTextView.setText(DateUtils.getFormattedTime(animal.getDate()));
+        if (animal.isChip()){
+            holder.nameTextView.setTextColor(Color.parseColor("#000099"));
+            holder.nameTextView.setTypeface(Typeface.DEFAULT_BOLD);
+        }
     }
 
     @Override

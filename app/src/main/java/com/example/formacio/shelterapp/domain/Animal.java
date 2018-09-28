@@ -49,7 +49,7 @@ public class Animal implements Parcelable {
     }
 
     public Animal(int animalID, String name, int age, boolean chip, String typeOfAnimal, long date,
-                  String picture, double latitude, double longitude) throws IllegalArgumentException {
+                  String picture, double latitude, double longitude)  {
         this.animalID = animalID;
         this.name = name;
         this.age = age;
